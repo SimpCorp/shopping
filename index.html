@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Astrox — Next Generation Shopping</title>
+  <title>Astrox — Next-Gen Shopping</title>
   
-  <!-- Inter Font (Apple-like precision typography) -->
+  <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -25,11 +25,11 @@
           },
           colors: {
             brand: {
-              black: '#121212',
-              white: '#FBFBFD',
+              black: '#111112',
+              white: '#FFFFFF',
               gray: '#86868B',
               card: '#F5F5F7',
-              accent: '#2874F0', // Flipkart signature vibrant blue
+              accent: '#2874F0',
               accentHover: '#1C5BBD'
             }
           }
@@ -40,8 +40,8 @@
 
   <style>
     body {
-      background-color: #FAFAFA;
-      color: #121212;
+      background-color: #FAFAFB;
+      color: #111112;
       -webkit-font-smoothing: antialiased;
     }
     .no-scrollbar::-webkit-scrollbar {
@@ -51,282 +51,489 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
   </style>
 </head>
-<body class="selection:bg-brand-black selection:text-white">
+<body class="selection:bg-brand-black selection:text-white flex flex-col min-h-screen">
 
-  <!-- 1. Top Offer Ribbon (Flipkart Utility) -->
-  <div class="bg-brand-black text-white text-[12px] py-2 px-4 text-center tracking-tight font-normal">
-    <span>Supercharged Autumn Deals. Get up to 40% off on premium gear. </span>
-    <a href="#featured" class="underline hover:text-gray-300 ml-1 font-medium transition-colors">Explore offers &rarr;</a>
+  <!-- 1. Top Offer Ribbon with Live Geo Badge -->
+  <div class="bg-brand-black text-white text-[12px] py-2 px-4 font-normal">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Delivering to: <strong id="user-location" class="font-semibold text-gray-200">Detecting country...</strong></span>
+      </div>
+      <div class="hidden sm:block text-gray-400">
+        <span>Verified OEM Storefront Links &bull; 100% Authentic Gear</span>
+      </div>
+    </div>
   </div>
 
-  <!-- 2. Sticky Minimal Header (Apple Glassmorphism + Flipkart Quick Actions) -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/5 transition-all">
+  <!-- 2. Sticky Minimal Navigation -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/85 border-b border-black/5 transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
       
       <!-- Brand Logo -->
-      <div class="flex items-center gap-8">
-        <a href="#" class="text-2xl font-bold tracking-tighter text-brand-black hover:opacity-85 transition-opacity">
-          Astrox<span class="text-brand-accent">.</span>
-        </a>
+      <a href="#" onclick="filterCategory('all')" class="text-2xl font-black tracking-tight text-brand-black flex items-center gap-1">
+        Astrox<span class="text-brand-accent text-3xl leading-none">.</span>
+      </a>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="hidden md:flex items-center space-x-6 text-xs font-medium text-gray-600">
-          <a href="#" class="hover:text-black transition-colors">Store</a>
-          <a href="#" class="hover:text-black transition-colors">Audio</a>
-          <a href="#" class="hover:text-black transition-colors">Wearables</a>
-          <a href="#" class="hover:text-black transition-colors">Computing</a>
-          <a href="#" class="hover:text-black transition-colors">Accessories</a>
-        </nav>
-      </div>
-
-      <!-- Flipkart-Inspired Live Search Input -->
-      <div class="flex-1 max-w-md hidden sm:block">
+      <!-- Flipkart-Inspired Live Filter Bar -->
+      <div class="flex-1 max-w-lg hidden sm:block">
         <div class="relative w-full">
           <input 
+            id="search-input"
             type="text" 
-            placeholder="Search products, brands and more..." 
-            class="w-full bg-[#F5F5F7] border border-transparent focus:border-black/10 focus:bg-white text-xs rounded-full py-2.5 pl-10 pr-4 outline-none transition duration-200 placeholder-gray-400"
+            oninput="handleSearch()"
+            placeholder="Search real gear (e.g. Sony, MacBook, Kindle, Keychron)..." 
+            class="w-full bg-[#F5F5F7] border border-transparent focus:border-black/15 focus:bg-white text-xs rounded-full py-2.5 pl-10 pr-4 outline-none transition placeholder-gray-400 font-medium"
           />
-          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-2.5"></i>
+          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-3"></i>
         </div>
       </div>
 
-      <!-- Action Items -->
-      <div class="flex items-center space-x-4">
-        <button class="text-xs font-medium text-gray-700 hover:text-black hidden sm:flex items-center gap-1">
-          <i data-lucide="user" class="w-4 h-4"></i>
-          <span>Account</span>
-        </button>
-
-        <button class="relative p-2 text-gray-700 hover:text-black transition">
-          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-          <span class="absolute top-1 right-1 bg-brand-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
-        </button>
+      <!-- User Cart / Quick Action -->
+      <div class="flex items-center space-x-5">
+        <div class="text-right hidden md:block">
+          <div class="text-[10px] text-gray-400 uppercase font-semibold">Region Currency</div>
+          <div id="currency-display" class="text-xs font-bold text-gray-800">USD ($)</div>
+        </div>
+        <div class="w-px h-6 bg-gray-200 hidden md:block"></div>
+        <a href="#catalog" class="bg-brand-black hover:bg-black/80 text-white text-xs font-semibold px-4 py-2 rounded-full transition flex items-center gap-1.5">
+          <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+          <span>Catalog</span>
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- 3. Category Horizontal Scroller (Compact, Clean) -->
-  <div class="bg-white border-b border-black/5">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-6 overflow-x-auto no-scrollbar text-xs font-medium text-gray-600">
-      <button class="text-black bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap">All Categories</button>
-      <button class="hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap transition">Best Sellers</button>
-      <button class="hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap transition">Noise-Cancelling</button>
-      <button class="hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap transition">Smart Tech</button>
-      <button class="hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap transition">Display & Screens</button>
-      <button class="hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-full whitespace-nowrap transition">Power & Battery</button>
+  <!-- 3. Category Bar (Interactive Pills) -->
+  <nav class="bg-white border-b border-black/5 sticky top-16 z-40 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar" id="category-bar">
+      <!-- Generated via JS -->
     </div>
-  </div>
+  </nav>
 
-  <main>
-    <!-- 4. Hero Banner (Apple-style bold typography + High clarity product display) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-      <div class="relative bg-brand-card rounded-3xl overflow-hidden p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between border border-black/[0.04]">
-        <div class="max-w-xl text-center md:text-left z-10">
-          <span class="text-brand-accent uppercase tracking-widest text-[11px] font-bold">New Release</span>
-          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-brand-black mt-2 leading-[1.08]">
-            Astrox Spatial 1.
+  <main class="flex-grow">
+    <!-- 4. Dynamic Promo Hero Banner -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
+      <div class="relative bg-brand-card rounded-3xl overflow-hidden p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between border border-black/[0.04]">
+        <div class="max-w-lg text-center md:text-left z-10">
+          <span class="bg-brand-accent/10 text-brand-accent px-2.5 py-1 rounded-full uppercase tracking-wider text-[10px] font-bold">Featured Destination</span>
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-brand-black mt-3 leading-tight">
+            Curated Tech Hardware.
           </h1>
-          <p class="text-brand-gray text-base sm:text-lg mt-4 font-normal">
-            Immersive sound engineered with beryllium acoustic drivers. Now with pure active noise isolation.
+          <p class="text-brand-gray text-xs sm:text-sm mt-3 leading-relaxed">
+            Direct redirects to original manufacturer verified stores. No knock-offs, transparent localized pricing.
           </p>
-          <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-            <button class="bg-brand-accent hover:bg-brand-accentHover text-white px-7 py-3 rounded-full text-xs font-semibold tracking-wide transition shadow-sm">
-              Buy Now &bull; $349
+          <div class="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+            <button onclick="filterCategory('all')" class="bg-brand-black hover:bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition">
+              View All Items
             </button>
-            <button class="bg-white hover:bg-gray-100 text-brand-black border border-black/10 px-7 py-3 rounded-full text-xs font-semibold tracking-wide transition">
-              Learn more
+            <button onclick="filterCategory('audio')" class="bg-white hover:bg-gray-100 text-brand-black border border-black/10 px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition">
+              Explore Audio
             </button>
           </div>
         </div>
 
-        <div class="mt-8 md:mt-0 relative flex justify-center items-center">
+        <div class="mt-6 md:mt-0 flex justify-center items-center">
           <img 
-            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" 
-            alt="Astrox Spatial 1" 
-            class="w-72 sm:w-96 object-contain mix-blend-multiply drop-shadow-2xl hover:scale-105 transition-transform duration-500 ease-out"
+            src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&q=80" 
+            alt="Flagship Smartwatch" 
+            class="w-64 sm:w-80 object-contain mix-blend-multiply drop-shadow-xl hover:scale-105 transition-transform duration-500 ease-out"
           />
         </div>
       </div>
     </section>
 
-    <!-- 5. Product Grid (Flipkart utility cards styled with Apple minimalism) -->
-    <section id="featured" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex items-end justify-between mb-8">
+    <!-- 5. Product Grid Section -->
+    <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4 border-b border-black/5 gap-2">
         <div>
-          <h2 class="text-2xl font-bold tracking-tight text-brand-black">Featured Products</h2>
-          <p class="text-xs text-brand-gray mt-1">Engineered to elevate your everyday flow.</p>
+          <h2 id="current-cat-title" class="text-xl sm:text-2xl font-bold tracking-tight text-brand-black">All Products</h2>
+          <p id="results-count" class="text-xs text-brand-gray mt-0.5">Showing verified authentic electronics</p>
         </div>
-        <a href="#" class="text-xs font-semibold text-brand-accent hover:underline flex items-center gap-1">
-          View all <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        </a>
+        <div class="text-xs text-gray-500 flex items-center gap-1.5">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-brand-accent"></i>
+          <span>Cards link straight to genuine product store pages</span>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <!-- Card 1 -->
-        <div class="group bg-white rounded-2xl p-5 border border-black/[0.06] hover:border-black/[0.12] transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-          <div>
-            <div class="relative bg-brand-card rounded-xl p-6 aspect-square flex items-center justify-center overflow-hidden mb-4">
-              <span class="absolute top-3 left-3 bg-emerald-500/10 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">20% OFF</span>
-              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80" alt="Watch" class="w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-300" />
-            </div>
-            <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Smartwear</div>
-            <h3 class="font-semibold text-sm text-brand-black mt-1">Astrox Horizon Watch</h3>
-            <div class="flex items-center gap-1 mt-1.5 text-xs text-amber-500">
-              <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
-              <span class="font-bold text-black text-[11px]">4.8</span>
-              <span class="text-gray-400 text-[11px]">(1,420)</span>
-            </div>
-          </div>
-          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between">
-            <div>
-              <span class="text-base font-bold text-brand-black">$199</span>
-              <span class="text-xs text-gray-400 line-through ml-1">$249</span>
-            </div>
-            <button class="bg-brand-black text-white hover:bg-brand-accent p-2.5 rounded-full transition-colors">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="group bg-white rounded-2xl p-5 border border-black/[0.06] hover:border-black/[0.12] transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-          <div>
-            <div class="relative bg-brand-card rounded-xl p-6 aspect-square flex items-center justify-center overflow-hidden mb-4">
-              <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&q=80" alt="Tech Watch" class="w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-300" />
-            </div>
-            <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Audio</div>
-            <h3 class="font-semibold text-sm text-brand-black mt-1">Astrox Pods Air</h3>
-            <div class="flex items-center gap-1 mt-1.5 text-xs text-amber-500">
-              <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
-              <span class="font-bold text-black text-[11px]">4.9</span>
-              <span class="text-gray-400 text-[11px]">(3,810)</span>
-            </div>
-          </div>
-          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between">
-            <div>
-              <span class="text-base font-bold text-brand-black">$149</span>
-            </div>
-            <button class="bg-brand-black text-white hover:bg-brand-accent p-2.5 rounded-full transition-colors">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="group bg-white rounded-2xl p-5 border border-black/[0.06] hover:border-black/[0.12] transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-          <div>
-            <div class="relative bg-brand-card rounded-xl p-6 aspect-square flex items-center justify-center overflow-hidden mb-4">
-              <span class="absolute top-3 left-3 bg-brand-accent/10 text-brand-accent text-[10px] font-bold px-2 py-0.5 rounded">Trending</span>
-              <img src="https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&q=80" alt="Keyboard" class="w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-300" />
-            </div>
-            <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Workstation</div>
-            <h3 class="font-semibold text-sm text-brand-black mt-1">Astrox Flow Keys Mini</h3>
-            <div class="flex items-center gap-1 mt-1.5 text-xs text-amber-500">
-              <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
-              <span class="font-bold text-black text-[11px]">4.6</span>
-              <span class="text-gray-400 text-[11px]">(840)</span>
-            </div>
-          </div>
-          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between">
-            <div>
-              <span class="text-base font-bold text-brand-black">$119</span>
-              <span class="text-xs text-gray-400 line-through ml-1">$139</span>
-            </div>
-            <button class="bg-brand-black text-white hover:bg-brand-accent p-2.5 rounded-full transition-colors">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="group bg-white rounded-2xl p-5 border border-black/[0.06] hover:border-black/[0.12] transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-          <div>
-            <div class="relative bg-brand-card rounded-xl p-6 aspect-square flex items-center justify-center overflow-hidden mb-4">
-              <img src="https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=500&q=80" alt="Speaker" class="w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-300" />
-            </div>
-            <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Sound</div>
-            <h3 class="font-semibold text-sm text-brand-black mt-1">Astrox Studio Beam</h3>
-            <div class="flex items-center gap-1 mt-1.5 text-xs text-amber-500">
-              <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
-              <span class="font-bold text-black text-[11px]">4.7</span>
-              <span class="text-gray-400 text-[11px]">(512)</span>
-            </div>
-          </div>
-          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between">
-            <div>
-              <span class="text-base font-bold text-brand-black">$279</span>
-            </div>
-            <button class="bg-brand-black text-white hover:bg-brand-accent p-2.5 rounded-full transition-colors">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
+      <!-- Dynamic Cards Container -->
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Injected via JavaScript -->
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden text-center py-20">
+        <i data-lucide="package-search" class="w-12 h-12 mx-auto text-gray-300 mb-3"></i>
+        <h3 class="text-base font-semibold text-gray-800">No matching products found</h3>
+        <p class="text-xs text-gray-500 mt-1">Try searching for generic terms or select "All Categories".</p>
+        <button onclick="filterCategory('all')" class="mt-4 text-xs font-semibold text-brand-accent hover:underline">Reset Filters</button>
       </div>
     </section>
 
-    <!-- 6. Flipkart Style Trust Indicators with Apple Minimal Icons -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-black/5 mt-10">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center mb-3">
-            <i data-lucide="truck" class="w-5 h-5 text-brand-black"></i>
+    <!-- 6. Flipkart Style Trust Indicators -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-black/5 mt-10">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-2.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-brand-black"></i>
           </div>
-          <h4 class="text-sm font-semibold text-brand-black">Free Express Delivery</h4>
-          <p class="text-xs text-brand-gray mt-1">On all orders above $50</p>
+          <h4 class="text-xs font-bold text-brand-black">Verified Official Outlets</h4>
+          <p class="text-[11px] text-brand-gray mt-0.5">Direct to Apple, Sony & Amazon</p>
         </div>
-
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center mb-3">
-            <i data-lucide="shield-check" class="w-5 h-5 text-brand-black"></i>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-2.5">
+            <i data-lucide="globe" class="w-4 h-4 text-brand-black"></i>
           </div>
-          <h4 class="text-sm font-semibold text-brand-black">2-Year Astrox Care</h4>
-          <p class="text-xs text-brand-gray mt-1">Official manufacturer coverage</p>
+          <h4 class="text-xs font-bold text-brand-black">IP Localization</h4>
+          <p class="text-[11px] text-brand-gray mt-0.5">Real-time localized pricing</p>
         </div>
-
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center mb-3">
-            <i data-lucide="refresh-cw" class="w-5 h-5 text-brand-black"></i>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-2.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-brand-black"></i>
           </div>
-          <h4 class="text-sm font-semibold text-brand-black">14-Day Easy Returns</h4>
-          <p class="text-xs text-brand-gray mt-1">No questions asked return policy</p>
+          <h4 class="text-xs font-bold text-brand-black">Manufacturer Warranty</h4>
+          <p class="text-[11px] text-brand-gray mt-0.5">Full original brand protection</p>
         </div>
-
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center mb-3">
-            <i data-lucide="lock" class="w-5 h-5 text-brand-black"></i>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-2.5">
+            <i data-lucide="zap" class="w-4 h-4 text-brand-black"></i>
           </div>
-          <h4 class="text-sm font-semibold text-brand-black">Secure Checkout</h4>
-          <p class="text-xs text-brand-gray mt-1">End-to-end encrypted payments</p>
+          <h4 class="text-xs font-bold text-brand-black">Zero Intermediaries</h4>
+          <p class="text-[11px] text-brand-gray mt-0.5">Direct merchant checkouts</p>
         </div>
       </div>
     </section>
   </main>
 
   <!-- 7. Minimal Clean Footer -->
-  <footer class="bg-white border-t border-black/5 text-gray-500 text-xs py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+  <footer class="bg-white border-t border-black/5 text-gray-500 text-xs py-8 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-2">
         <span class="font-bold text-black text-sm">Astrox.</span>
-        <span>&copy; 2026 Astrox Technologies Inc. All rights reserved.</span>
+        <span>&copy; <span id="current-year"></span> Astrox Technologies Inc. All product names, logos, and brands are property of their respective owners.</span>
       </div>
-
-      <div class="flex space-x-6 text-gray-500">
-        <a href="#" class="hover:text-black transition">Privacy Policy</a>
-        <a href="#" class="hover:text-black transition">Terms of Sale</a>
-        <a href="#" class="hover:text-black transition">Legal</a>
-        <a href="#" class="hover:text-black transition">Site Map</a>
+      <div class="flex space-x-6 text-[11px] text-gray-500">
+        <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener noreferrer" class="hover:text-black transition">Privacy</a>
+        <a href="https://www.apple.com/legal/internet-services/terms/site.html" target="_blank" rel="noopener noreferrer" class="hover:text-black transition">Terms</a>
+        <a href="#" class="hover:text-black transition">Security</a>
       </div>
     </div>
   </footer>
 
-  <!-- Initialize Lucide Icons -->
+  <!-- APPLICATION LOGIC & REAL PRODUCTS DATA -->
   <script>
-    lucide.createIcons();
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    // 1. VERIFIED PRODUCT DATABASE WITH LIVE OFFICIAL REDIRECT URLs
+    const products = [
+      {
+        id: 'p1',
+        title: 'Apple AirPods Max',
+        category: 'audio',
+        categoryName: 'Audio',
+        brand: 'Apple',
+        priceUSD: 549,
+        originalPriceUSD: 599,
+        rating: 4.8,
+        reviews: '12.4k',
+        tag: 'Spatial Audio',
+        image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&q=80',
+        redirectUrl: 'https://www.apple.com/airpods-max/'
+      },
+      {
+        id: 'p2',
+        title: 'Sony WH-1000XM5 Wireless',
+        category: 'audio',
+        categoryName: 'Audio',
+        brand: 'Sony',
+        priceUSD: 399,
+        originalPriceUSD: 449,
+        rating: 4.9,
+        reviews: '8.9k',
+        tag: 'Industry Leader',
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80',
+        redirectUrl: 'https://electronics.sony.com/audio/headphones/headband-headphones/p/wh1000xm5-b'
+      },
+      {
+        id: 'p3',
+        title: 'Apple Watch Ultra 2',
+        category: 'wearables',
+        categoryName: 'Wearables',
+        brand: 'Apple',
+        priceUSD: 799,
+        originalPriceUSD: 799,
+        rating: 4.9,
+        reviews: '5.2k',
+        tag: 'Titanium Case',
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
+        redirectUrl: 'https://www.apple.com/apple-watch-ultra-2/'
+      },
+      {
+        id: 'p4',
+        title: 'Samsung Galaxy Watch6 Classic',
+        category: 'wearables',
+        categoryName: 'Wearables',
+        brand: 'Samsung',
+        priceUSD: 329,
+        originalPriceUSD: 399,
+        rating: 4.6,
+        reviews: '3.1k',
+        tag: 'Rotating Bezel',
+        image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&q=80',
+        redirectUrl: 'https://www.samsung.com/us/watches/galaxy-watch6/'
+      },
+      {
+        id: 'p5',
+        title: 'Apple MacBook Air M3 15-inch',
+        category: 'computing',
+        categoryName: 'Computing',
+        brand: 'Apple',
+        priceUSD: 1299,
+        originalPriceUSD: 1399,
+        rating: 4.9,
+        reviews: '9.4k',
+        tag: 'M3 Silicon',
+        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80',
+        redirectUrl: 'https://www.apple.com/macbook-air/'
+      },
+      {
+        id: 'p6',
+        title: 'Keychron Q1 Pro Wireless Mechanical',
+        category: 'computing',
+        categoryName: 'Computing',
+        brand: 'Keychron',
+        priceUSD: 199,
+        originalPriceUSD: 219,
+        rating: 4.8,
+        reviews: '1.2k',
+        tag: 'Custom CNC Alu',
+        image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&q=80',
+        redirectUrl: 'https://www.keychron.com/products/keychron-q1-pro-qmk-via-wireless-custom-mechanical-keyboard'
+      },
+      {
+        id: 'p7',
+        title: 'Amazon Kindle Paperwhite (16 GB)',
+        category: 'accessories',
+        categoryName: 'Accessories',
+        brand: 'Amazon',
+        priceUSD: 149,
+        originalPriceUSD: 169,
+        rating: 4.7,
+        reviews: '41k',
+        tag: 'Waterproof 300ppi',
+        image: 'https://images.unsplash.com/photo-1592496001020-d31bd830651f?w=600&q=80',
+        redirectUrl: 'https://www.amazon.com/dp/B08KTZ8249'
+      },
+      {
+        id: 'p8',
+        title: 'DJI Mini 4 Pro Drone (Fly More)',
+        category: 'accessories',
+        categoryName: 'Accessories',
+        brand: 'DJI',
+        priceUSD: 759,
+        originalPriceUSD: 859,
+        rating: 4.9,
+        reviews: '2.8k',
+        tag: '4K/60fps HDR',
+        image: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=600&q=80',
+        redirectUrl: 'https://store.dji.com/product/dji-mini-4-pro'
+      }
+    ];
+
+    const categories = [
+      { id: 'all', name: 'All Products' },
+      { id: 'audio', name: 'Audio & Acoustics' },
+      { id: 'wearables', name: 'Wearables' },
+      { id: 'computing', name: 'Computing' },
+      { id: 'accessories', name: 'Accessories & Drones' }
+    ];
+
+    // State Variables
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let userCurrency = { symbol: '$', code: 'USD', rate: 1.0 };
+
+    // 2. IP LOCATION & CURRENCY DETECTION
+    async function detectUserLocation() {
+      const locationLabel = document.getElementById('user-location');
+      const currencyLabel = document.getElementById('currency-display');
+      
+      try {
+        // Fetch location via HTTPS JSON IP lookup
+        let response = await fetch('https://ipapi.co/json/');
+        let data = await response.json();
+        
+        if (data && data.country_name) {
+          const countryCode = (data.country_code || '').toUpperCase();
+          const countryName = data.country_name;
+          const city = data.city ? `${data.city}, ` : '';
+          
+          locationLabel.textContent = `${city}${countryName} (${countryCode})`;
+
+          // Setup dynamic regional pricing
+          if (countryCode === 'IN') {
+            userCurrency = { symbol: '₹', code: 'INR', rate: 83.5 };
+          } else if (['GB', 'UK'].includes(countryCode)) {
+            userCurrency = { symbol: '£', code: 'GBP', rate: 0.79 };
+          } else if (['DE', 'FR', 'IT', 'ES', 'NL', 'EU'].includes(countryCode)) {
+            userCurrency = { symbol: '€', code: 'EUR', rate: 0.92 };
+          } else if (countryCode === 'CA') {
+            userCurrency = { symbol: 'CA$', code: 'CAD', rate: 1.36 };
+          } else if (countryCode === 'AU') {
+            userCurrency = { symbol: 'A$', code: 'AUD', rate: 1.52 };
+          } else {
+            userCurrency = { symbol: '$', code: 'USD', rate: 1.0 };
+          }
+          
+          currencyLabel.textContent = `${userCurrency.code} (${userCurrency.symbol})`;
+        } else {
+          throw new Error('Fallback required');
+        }
+      } catch (err) {
+        // Clean fallback
+        try {
+          let fb = await fetch('https://api.country.is/');
+          let fbData = await fb.json();
+          locationLabel.textContent = `${fbData.country || 'Global'}`;
+        } catch {
+          locationLabel.textContent = 'Global Storefront';
+        }
+      } finally {
+        renderProducts();
+      }
+    }
+
+    // Helper: Format price
+    function formatPrice(valInUSD) {
+      const converted = Math.round(valInUSD * userCurrency.rate);
+      return `${userCurrency.symbol}${converted.toLocaleString()}`;
+    }
+
+    // 3. RENDER CATEGORY BUTTONS
+    function renderCategories() {
+      const catBar = document.getElementById('category-bar');
+      catBar.innerHTML = categories.map(cat => {
+        const isActive = cat.id === activeCategory;
+        const classes = isActive 
+          ? 'bg-brand-black text-white font-semibold' 
+          : 'bg-[#F5F5F7] text-gray-700 hover:bg-gray-200 hover:text-black';
+        return `
+          <button 
+            onclick="filterCategory('${cat.id}')"
+            class="px-4 py-2 rounded-full text-xs transition duration-200 whitespace-nowrap ${classes}">
+            ${cat.name}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // 4. FILTER CONTROLLER
+    function filterCategory(catId) {
+      activeCategory = catId;
+      const found = categories.find(c => c.id === catId);
+      document.getElementById('current-cat-title').textContent = found ? found.name : 'All Products';
+      renderCategories();
+      renderProducts();
+    }
+
+    // Search input handler
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+      renderProducts();
+    }
+
+    // 5. PRODUCT RENDERING & REDIRECT HANDLING
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      const emptyState = document.getElementById('empty-state');
+      const countLabel = document.getElementById('results-count');
+
+      // Filter logic
+      const filtered = products.filter(p => {
+        const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+        const matchesSearch = p.title.toLowerCase().includes(searchQuery) ||
+                              p.brand.toLowerCase().includes(searchQuery) ||
+                              p.categoryName.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      countLabel.textContent = `Showing ${filtered.length} product${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <article class="product-card group bg-white rounded-2xl p-5 border border-black/[0.06] transition-all duration-300 hover:shadow-xl hover:border-black/[0.15] flex flex-col justify-between">
+          <div>
+            <!-- Image Area -->
+            <div class="relative bg-brand-card rounded-xl p-6 aspect-square flex items-center justify-center overflow-hidden mb-4">
+              ${item.tag ? `<span class="absolute top-3 left-3 bg-brand-black/90 backdrop-blur-md text-white text-[10px] font-semibold tracking-wide px-2.5 py-1 rounded-md shadow-sm">${item.tag}</span>` : ''}
+              <img 
+                src="${item.image}" 
+                alt="${item.title}" 
+                loading="lazy"
+                class="w-4/5 h-4/5 object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            
+            <!-- Category & Title -->
+            <div class="flex items-center justify-between text-[11px] text-gray-400 font-semibold tracking-wider uppercase mb-1">
+              <span>${item.brand}</span>
+              <span class="text-brand-accent">${item.categoryName}</span>
+            </div>
+            <h3 class="font-semibold text-sm text-brand-black leading-snug line-clamp-2">${item.title}</h3>
+            
+            <!-- Reviews -->
+            <div class="flex items-center gap-1.5 mt-2 text-amber-500 text-xs">
+              <div class="flex items-center">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+              </div>
+              <span class="font-bold text-black text-xs">${item.rating}</span>
+              <span class="text-gray-400 text-[11px]">(${item.reviews} reviews)</span>
+            </div>
+          </div>
+
+          <!-- Price & Redirect Link (Apple Clean + Flipkart Call-to-action) -->
+          <div class="mt-5 pt-3 border-t border-black/5 flex items-center justify-between">
+            <div>
+              <span class="text-base font-bold text-brand-black">${formatPrice(item.priceUSD)}</span>
+              ${item.originalPriceUSD > item.priceUSD ? `<span class="text-xs text-gray-400 line-through ml-1.5">${formatPrice(item.originalPriceUSD)}</span>` : ''}
+            </div>
+            
+            <a 
+              href="${item.redirectUrl}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="inline-flex items-center gap-1.5 bg-brand-accent hover:bg-brand-accentHover text-white text-xs font-semibold px-3.5 py-2 rounded-full transition shadow-sm hover:shadow"
+              title="View on Official Store">
+              <span>Store</span>
+              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </article>
+      `).join('');
+
+      // Refresh dynamic SVG icons
+      lucide.createIcons();
+    }
+
+    // Initialize application on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      renderProducts();
+      detectUserLocation();
+      lucide.createIcons();
+    });
   </script>
 </body>
 </html>
